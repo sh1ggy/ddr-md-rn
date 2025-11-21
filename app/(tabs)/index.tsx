@@ -1,74 +1,69 @@
-import Card from "@/components/Card";
-import ModeSwitch from "@/components/ModeSwitch";
-import { Text, View } from "@/components/Themed";
-import { BLUR_HASH } from "@/constants/Constants";
-import { Pokemon } from "@/lib/types";
-import { mode } from "@/stores/global";
-import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
-import { useAtom } from "jotai";
-import { StyleSheet, useColorScheme } from "react-native";
+import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
+import { useState } from 'react';
+import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function TabOneScreen() {
-  const [appTheme] = useAtom(mode);
-  const colorScheme = useColorScheme();
+export default function App() {
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
 
-  // Queries
-  const { isPending, error, data, isFetching } = useQuery<Pokemon>({
-    queryKey: ["pokedex"],
-    queryFn: async () => {
-      const r = await fetch("https://pokeapi.co/api/v2/pokemon/ditto");
-      if (!r.ok) throw new Error("Failed to fetch Pokémon");
-      return await r.json();
-    },
-  });
+  if (!permission) {
+    // Camera permissions are still loading.
+    return <View />;
+  }
 
-  if (isPending) return <Text>Loading...</Text>;
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
 
-  if (error) return <Text>{"An error has occurred: " + error.message}</Text>;
+  function toggleCameraFacing() {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Text style={styles.title}>Tab One</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <Card title={appTheme} />
-      {colorScheme && <Card title={colorScheme} />}
-      {data && <Card title={data.name} />}
-      <Image
-        style={{
-          width: "20%",
-          height: "20%",
-          backgroundColor: "#0553",
-        }}
-        source={data.sprites.front_default}
-        placeholder={BLUR_HASH}
-        contentFit="scale-down"
-        transition={1000}
-      />
-      <ModeSwitch />
+    <View style={styles.container}>
+      <CameraView style={styles.camera} facing={facing} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip Camera</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {},
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
+  container: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+  message: {
+    textAlign: 'center',
+    paddingBottom: 10,
+  },
+  camera: {
+    flex: 1,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 64,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    width: '100%',
+    paddingHorizontal: 64,
+  },
+  button: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
