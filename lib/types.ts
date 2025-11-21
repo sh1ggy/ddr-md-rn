@@ -29,8 +29,8 @@ export interface Song {
   version: string;
   artist: string;
   bpm: number;
-  sp: DP;
-  dp?: DP;
+  sp: Difficulty;
+  dp?: Difficulty;
 }
 
 export interface DetailedSong extends Song {
@@ -66,7 +66,7 @@ export interface Beat {
   val: number;
 }
 
-export interface DP {
+export interface Difficulty {
   easy: number;
   medium: number;
   hard: number;

@@ -1,3 +1,3 @@
 import { atom } from "jotai";
 
-export const theme = atom<"light" | "dark">("light");
+export const mode = atom<"singles" | "doubles">("singles");

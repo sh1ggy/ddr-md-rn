@@ -5,8 +5,8 @@
   "name": "ACE FOR ACES",
   "title": "ACE FOR ACES",
   "titletranslit": "ACE FOR ACES",
-  "song_length": 123.6,
-  "per_chart": true,
+  "songLength": 123.6,
+  "perChart": true,
   "sp": {
     "beginner": 4,
     "easy": 7,
@@ -22,10 +22,10 @@
   },
   "charts": [
     {
-      "dominant_bpm": 200,
-      "true_min": 200,
-      "true_max": 200,
-      "bpm_range": "200",
+      "dominantBpm": 200,
+      "trueMin": 200,
+      "trueMax": 200,
+      "bpmRange": "200",
       "bpms": [
         {
           "st": 0.0,
@@ -36,10 +36,10 @@
       "stops": []
     },
     {
-      "dominant_bpm": 200,
-      "true_min": 200,
-      "true_max": 200,
-      "bpm_range": "200",
+      "dominantBpm": 200,
+      "trueMin": 200,
+      "trueMax": 200,
+      "bpmRange": "200",
       "bpms": [
         {
           "st": 0.0,
@@ -50,10 +50,10 @@
       "stops": []
     },
     {
-      "dominant_bpm": 200,
-      "true_min": 100,
-      "true_max": 826,
-      "bpm_range": "100~200~826",
+      "dominantBpm": 200,
+      "trueMin": 100,
+      "trueMax": 826,
+      "bpmRange": "100~200~826",
       "bpms": [
         {
           "st": 0.0,
@@ -210,10 +210,10 @@
       ]
     },
     {
-      "dominant_bpm": 400,
-      "true_min": 50,
-      "true_max": 800,
-      "bpm_range": "50~400~800",
+      "dominantBpm": 400,
+      "trueMin": 50,
+      "trueMax": 800,
+      "bpmRange": "50~400~800",
       "bpms": [
         {
           "st": 0.0,
@@ -375,10 +375,10 @@
       ]
     },
     {
-      "dominant_bpm": 400,
-      "true_min": 50,
-      "true_max": 800,
-      "bpm_range": "50~400~800",
+      "dominantBpm": 400,
+      "trueMin": 50,
+      "trueMax": 800,
+      "bpmRange": "50~400~800",
       "bpms": [
         {
           "st": 0.0,

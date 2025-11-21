@@ -1,10 +1,13 @@
 import { Text, View } from "@/components/Themed";
 import { globalStyles } from "@/lib/globalStyles";
 import { Pokemon } from "@/lib/types";
+import { mode } from "@/stores/global";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
+import { useAtom } from "jotai";
 
 export default function SongsScreen() {
+  const [appMode] = useAtom(mode);
   // Queries
   const { isPending, error, data, isFetching } = useQuery<Pokemon>({
     queryKey: ["pokedex"],
@@ -18,7 +21,6 @@ export default function SongsScreen() {
   if (isPending) return <Text>Loading...</Text>;
 
   if (error) return <Text>{"An error has occurred: " + error.message}</Text>;
-
   return (
     <View
       style={{
@@ -27,7 +29,7 @@ export default function SongsScreen() {
         justifyContent: "center",
       }}
     >
-      <Text style={globalStyles.title}>Tab One</Text>
+      <Text style={globalStyles.title}>{appMode}</Text>
       <View
         style={globalStyles.separator}
         lightColor="#eee"
@@ -42,7 +44,7 @@ export default function SongsScreen() {
           },
         }}
       >
-        <Text>Go to Ace for</Text>
+        <Text>Go to Song Details</Text>
       </Link>
     </View>
   );

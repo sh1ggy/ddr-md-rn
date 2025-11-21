@@ -1,16 +1,16 @@
 import Card from "@/components/Card";
+import ModeSwitch from "@/components/ModeSwitch";
 import { Text, View } from "@/components/Themed";
-import ThemeSwitch from "@/components/ThemeSwitch";
 import { BLUR_HASH } from "@/constants/Constants";
 import { Pokemon } from "@/lib/types";
-import { theme } from "@/stores/global";
+import { mode } from "@/stores/global";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useAtom } from "jotai";
 import { StyleSheet, useColorScheme } from "react-native";
 
 export default function TabOneScreen() {
-  const [appTheme] = useAtom(theme);
+  const [appTheme] = useAtom(mode);
   const colorScheme = useColorScheme();
 
   // Queries
@@ -55,7 +55,7 @@ export default function TabOneScreen() {
         contentFit="scale-down"
         transition={1000}
       />
-      <ThemeSwitch />
+      <ModeSwitch />
     </View>
   );
 }

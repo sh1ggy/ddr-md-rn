@@ -1,3 +1,4 @@
+import ModeSwitch from "@/components/ModeSwitch";
 import { Stack, useGlobalSearchParams } from "expo-router";
 
 export const unstable_settings = {
@@ -14,6 +15,7 @@ export default function SongLayout() {
         options={{
           headerTitle: "Song List",
           headerBackButtonDisplayMode: "minimal",
+          headerRight: () => <ModeSwitch />,
         }}
       />
       <Stack.Screen
