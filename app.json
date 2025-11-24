@@ -46,6 +46,20 @@
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.5",
+            "extraPods": [
+              {
+                "name": "GoogleMLKit/TextRecognition",
+                "version": "8.0.0"
+              }
+            ]
+          }
+        }
       ]
     ],
     "experiments": {
