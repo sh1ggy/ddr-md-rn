@@ -10,7 +10,7 @@ export default function SongDetailScreen() {
   const { id } = useLocalSearchParams();
   const [songDetails, setSongDetails] = useState<DetailedSong>(
     SONG_DETAILS as unknown as DetailedSong
-  );
+  ); // TODO: replace this 
   return (
     <ScrollView
       style={{ flex: 1 }}

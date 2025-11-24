@@ -3,14 +3,16 @@ import { Image } from "expo-image";
 import { View } from "../Themed";
 interface Props {
   src: string;
+  dimensions: { width: number; height: number };
 }
-export default function SongImage({ src }: Props) {
+export default function SongImage({ src, dimensions }: Props) {
+  const {width, height} = dimensions;
   return (
     <View>
       <Image
         style={{
-          width: 100,
-          height: 100,
+          width: width,
+          height: height,
           backgroundColor: "#0553",
         }}
         source={src}

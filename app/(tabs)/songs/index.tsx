@@ -1,13 +1,16 @@
+import SONG_DETAILS from "@/assets/ACE FOR ACES.json";
+import SongRow from "@/components/songs/SongRow";
 import { Text, View } from "@/components/Themed";
 import { globalStyles } from "@/lib/globalStyles";
-import { Pokemon } from "@/lib/types";
+import { Pokemon, Song } from "@/lib/types";
 import { mode } from "@/stores/global";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "expo-router";
 import { useAtom } from "jotai";
+import { useState } from "react";
 
 export default function SongsScreen() {
   const [appMode] = useAtom(mode);
+  const [song, setSong] = useState<Song>(SONG_DETAILS as unknown as Song);
   // Queries
   const { isPending, error, data, isFetching } = useQuery<Pokemon>({
     queryKey: ["pokedex"],
@@ -35,17 +38,7 @@ export default function SongsScreen() {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Link
-        href={{
-          pathname: "/songs/[id]",
-          params: {
-            id: "00000000-0000-0000-0000-000000000000",
-            name: "ACE FOR ACES",
-          },
-        }}
-      >
-        <Text>Go to Song Details</Text>
-      </Link>
+      <SongRow song={song} />
     </View>
   );
 }

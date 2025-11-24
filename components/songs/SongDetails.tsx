@@ -13,11 +13,18 @@ export default function SongDetails({ songDetails }: Props) {
   const { version, songLength } = songDetails;
   const songLengthMinutes: number = songLength / 60;
   const difficulty: Difficulty =
-    appMode === "singles" ? songDetails.sp : songDetails.dp!; // todo !!!
+    appMode === "singles" ? songDetails.sp : songDetails.dp!; // TODO: address the !
+
   return (
     <View>
       <View style={{ flexDirection: "row", gap: 10 }}>
-        <SongImage src="https://3icecream.com/img/banners/f/ld6P1lbb0bPO9doqbbPOoPb8qoDo8id0.jpg" />
+        <SongImage
+          src="https://3icecream.com/img/banners/f/ld6P1lbb0bPO9doqbbPOoPb8qoDo8id0.jpg"
+          dimensions={{
+            width: 100,
+            height: 100,
+          }}
+        />
         {/* Version */}
         <View style={{ gap: 5 }}>
           <Text style={{ fontSize: 20 }}>
