@@ -1,5 +1,5 @@
 import { Text, View } from "@/components/Themed";
-import { OCR } from "@/frame-processors/OCRPlugin";
+import { ocr, TextBlock } from "@/frame-processor/OCR";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useRef, useState } from "react";
 import {
@@ -18,22 +18,27 @@ import {
 import { useSharedValue, Worklets } from "react-native-worklets-core";
 
 export default function CameraScreen() {
-  const [ocrState, setOcrState] = useState<string[]>();
+  const [ocrState, setOcrState] = useState<string>("");
+  const [blocks, setBlocks] = useState<TextBlock[]>([]);
 
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
   const camera = useRef<Camera>(null);
 
-  const updateOcrText = Worklets.createRunOnJS((text: string[]) => {
+  const updateOcrText = Worklets.createRunOnJS((text: string) => {
     setOcrState(text);
+  });
+  const updateOcrBlocks = Worklets.createRunOnJS((blocks: TextBlock[]) => {
+    setBlocks(blocks);
   });
 
   const frameProcessor = useFrameProcessor((frame) => {
     "worklet";
-    const ocr = OCR(frame);
-    if (ocr && ocr.recognized.texts.length !== 0) {
-      // console.log(ocr.recognized.texts);
-      updateOcrText(ocr.recognized.texts);
+    const ocrResult = ocr(frame);
+    console.log(ocrResult.result.blocks);
+    if (ocrResult) {
+      updateOcrText(ocrResult.result.text);
+      updateOcrBlocks(ocrResult.result.blocks);
     }
   }, []);
 
@@ -76,14 +81,15 @@ export default function CameraScreen() {
         <ScrollView>
           <Text style={{ textAlign: "left" }}>
             {ocrState && (
-              <Text style={{ color: "white" }}>
-                {ocrState.map((block: string, i: number) => (
-                  <Text key={`${i}:${block}`} style={{ color: "white" }}>
-                    {block}
-                    {"\n"}
-                  </Text>
-                ))}
-              </Text>
+              <Text>{ocrState}</Text>
+              // <Text style={{ color: "white" }}>
+              //   {ocrState.map((block: string, i: number) => (
+              //     <Text key={`${i}:${block}`} style={{ color: "white" }}>
+              //       {block}
+              //       {"\n"}
+              //     </Text>
+              //   ))}
+              // </Text>
             )}
           </Text>
         </ScrollView>
