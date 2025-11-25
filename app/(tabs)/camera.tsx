@@ -1,13 +1,11 @@
 import { Text, View } from "@/components/Themed";
-import { ocr, TextBlock } from "@/frame-processor/OCR";
+import { ocr } from "@/frame-processors/ocr";
 import Entypo from "@expo/vector-icons/Entypo";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  LogBox,
-  Pressable,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 import {
   Camera,
@@ -15,11 +13,10 @@ import {
   useCameraPermission,
   useFrameProcessor,
 } from "react-native-vision-camera";
-import { useSharedValue, Worklets } from "react-native-worklets-core";
+import { Worklets } from "react-native-worklets-core";
 
 export default function CameraScreen() {
   const [ocrState, setOcrState] = useState<string>("");
-  const [blocks, setBlocks] = useState<TextBlock[]>([]);
 
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
@@ -28,19 +25,16 @@ export default function CameraScreen() {
   const updateOcrText = Worklets.createRunOnJS((text: string) => {
     setOcrState(text);
   });
-  const updateOcrBlocks = Worklets.createRunOnJS((blocks: TextBlock[]) => {
-    setBlocks(blocks);
-  });
 
   const frameProcessor = useFrameProcessor((frame) => {
     "worklet";
     const ocrResult = ocr(frame);
-    console.log(ocrResult.result.blocks);
-    if (ocrResult) {
-      updateOcrText(ocrResult.result.text);
-      updateOcrBlocks(ocrResult.result.blocks);
-    }
+    console.log(ocrResult.recognized.texts);
   }, []);
+
+  useEffect(() => {
+    requestPermission();
+  }, [])
 
   if (!hasPermission) return <Text>No permissions</Text>;
   if (device == null) return <Text>No camera device</Text>;
