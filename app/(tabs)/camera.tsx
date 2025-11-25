@@ -16,13 +16,13 @@ import {
 import { Worklets } from "react-native-worklets-core";
 
 export default function CameraScreen() {
-  const [ocrState, setOcrState] = useState<string>("");
+  const [ocrState, setOcrState] = useState<string[]>([]);
 
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
   const camera = useRef<Camera>(null);
 
-  const updateOcrText = Worklets.createRunOnJS((text: string) => {
+  const updateOcrText = Worklets.createRunOnJS((text: string[]) => {
     setOcrState(text);
   });
 
@@ -30,6 +30,7 @@ export default function CameraScreen() {
     "worklet";
     const ocrResult = ocr(frame);
     console.log(ocrResult.recognized.texts);
+    updateOcrText(ocrResult.recognized.texts);
   }, []);
 
   useEffect(() => {
@@ -75,15 +76,14 @@ export default function CameraScreen() {
         <ScrollView>
           <Text style={{ textAlign: "left" }}>
             {ocrState && (
-              <Text>{ocrState}</Text>
-              // <Text style={{ color: "white" }}>
-              //   {ocrState.map((block: string, i: number) => (
-              //     <Text key={`${i}:${block}`} style={{ color: "white" }}>
-              //       {block}
-              //       {"\n"}
-              //     </Text>
-              //   ))}
-              // </Text>
+              <Text style={{ color: "white" }}>
+                {ocrState.map((block: string, i: number) => (
+                  <Text key={`${i}:${block}`} style={{ color: "white" }}>
+                    {block}
+                    {"\n"}
+                  </Text>
+                ))}
+              </Text>
             )}
           </Text>
         </ScrollView>

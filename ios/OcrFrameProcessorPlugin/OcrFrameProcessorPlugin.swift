@@ -1,3 +1,4 @@
+import CoreImage
 import MLKitTextRecognition
 import MLKitVision
 import VisionCamera
@@ -13,7 +14,7 @@ public class OcrFrameProcessorPlugin: FrameProcessorPlugin {
   {
     // Convert to VisionImage
     let visionImage = VisionImage(buffer: frame.buffer)
-    visionImage.orientation = UIImage.Orientation.up  // fully qualified
+    visionImage.orientation = frame.orientation  // fully qualified
 
     // Create a text recognizer
     let options = TextRecognizerOptions()
@@ -48,5 +49,23 @@ public class OcrFrameProcessorPlugin: FrameProcessorPlugin {
         "count": recognizedTexts.count,
       ],
     ]
+  }
+}
+
+// MARK: - Orientation helper
+extension Frame {
+  var cameraOrientation: UIImage.Orientation {
+    // If you need to handle front/back mirroring:
+    if self.isMirrored {
+      switch self.orientation {
+      case .up: return .upMirrored
+      case .down: return .downMirrored
+      case .left: return .leftMirrored
+      case .right: return .rightMirrored
+      @unknown default: return .up
+      }
+    } else {
+      return self.orientation
+    }
   }
 }
