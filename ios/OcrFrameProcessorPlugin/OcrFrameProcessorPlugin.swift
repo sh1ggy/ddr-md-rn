@@ -105,29 +105,6 @@ public class OcrFrameProcessorPlugin: FrameProcessorPlugin {
       "boundingCenterY": frameRect.midY,
     ]
   }
-  
-  public static func imageOrientation(
-    fromDevicePosition devicePosition: AVCaptureDevice.Position = .back
-  ) -> UIImageOrientation {
-    var deviceOrientation = UIDevice.current.orientation
-    if deviceOrientation == .faceDown || deviceOrientation == .faceUp
-      || deviceOrientation == .unknown
-    {
-      deviceOrientation = currentUIOrientation()
-    }
-    switch deviceOrientation {
-    case .portrait:
-      return devicePosition == .front ? .leftMirrored : .right
-    case .landscapeLeft:
-      return devicePosition == .front ? .downMirrored : .up
-    case .portraitUpsideDown:
-      return devicePosition == .front ? .rightMirrored : .left
-    case .landscapeRight:
-      return devicePosition == .front ? .upMirrored : .down
-    case .faceDown, .faceUp, .unknown:
-      return .up
-    }
-  }
 
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?)
     -> Any?
@@ -140,7 +117,7 @@ public class OcrFrameProcessorPlugin: FrameProcessorPlugin {
     let visionImage = VisionImage(buffer: frame.buffer)
 
     let latinOptions = TextRecognizerOptions()
-    let orientation = imageOrientation(
+    let orientation = UIUtilities.imageOrientation(
       fromDevicePosition: .back
     )
     visionImage.orientation = orientation
