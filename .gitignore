@@ -39,4 +39,5 @@ yarn-error.*
 # generated native folders
 /ios/*
 !/ios/OcrFrameProcessorPlugin/
+!/ios/ddrmd.xcodeproj/project.pbxproj
 /android
