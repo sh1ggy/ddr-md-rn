@@ -9,63 +9,156 @@ public class OcrFrameProcessorPlugin: FrameProcessorPlugin {
     super.init(proxy: proxy, options: options)
   }
 
+  private func getBlockArray(_ blocks: [TextBlock]) -> [[String: Any]] {
+
+    var blockArray: [[String: Any]] = []
+    
+    for block in blocks {
+      blockArray.append([
+        "text": block.text,
+        "recognizedLanguages": getRecognizedLanguages(block.recognizedLanguages),
+        "cornerPoints": getCornerPoints(block.cornerPoints),
+        "frame": getFrame(block.frame),
+        "lines": getLineArray(block.lines),
+      ])
+    }
+
+    return blockArray
+  }
+
+  private func getLineArray(_ lines: [TextLine]) -> [[String: Any]] {
+
+    var lineArray: [[String: Any]] = []
+
+    for line in lines {
+      lineArray.append([
+        "text": line.text,
+        "recognizedLanguages": getRecognizedLanguages(line.recognizedLanguages),
+        "cornerPoints": getCornerPoints(line.cornerPoints),
+        "frame": getFrame(line.frame),
+        "elements": getElementArray(line.elements),
+      ])
+    }
+
+    return lineArray
+  }
+
+  private func getElementArray(_ elements: [TextElement]) -> [[String: Any]] {
+
+    var elementArray: [[String: Any]] = []
+
+    for element in elements {
+      elementArray.append([
+        "text": element.text,
+        "cornerPoints": getCornerPoints(element.cornerPoints),
+        "frame": getFrame(element.frame),
+      ])
+    }
+
+    return elementArray
+  }
+
+  private func getRecognizedLanguages(_ languages: [TextRecognizedLanguage]) -> [String] {
+
+    var languageArray: [String] = []
+
+    for language in languages {
+      guard let code = language.languageCode else {
+        print("No language code exists")
+        break
+      }
+      languageArray.append(code)
+    }
+
+    return languageArray
+  }
+
+  private func getCornerPoints(_ cornerPoints: [NSValue]) -> [[String: CGFloat]] {
+
+    var cornerPointArray: [[String: CGFloat]] = []
+
+    for cornerPoint in cornerPoints {
+      guard let point = cornerPoint as? CGPoint else {
+        print("Failed to convert corner point to CGPoint")
+        break
+      }
+      cornerPointArray.append(["x": point.x, "y": point.y])
+    }
+
+    return cornerPointArray
+  }
+
+  private func getFrame(_ frameRect: CGRect) -> [String: CGFloat] {
+
+    let offsetX = (frameRect.midX - ceil(frameRect.width)) / 2.0
+    let offsetY = (frameRect.midY - ceil(frameRect.height)) / 2.0
+
+    let x = frameRect.maxX + offsetX
+    let y = frameRect.minY + offsetY
+
+    return [
+      "x": frameRect.midX + (frameRect.midX - x),
+      "y": frameRect.midY + (y - frameRect.midY),
+      "width": frameRect.width,
+      "height": frameRect.height,
+      "boundingCenterX": frameRect.midX,
+      "boundingCenterY": frameRect.midY,
+    ]
+  }
+  
+  public static func imageOrientation(
+    fromDevicePosition devicePosition: AVCaptureDevice.Position = .back
+  ) -> UIImageOrientation {
+    var deviceOrientation = UIDevice.current.orientation
+    if deviceOrientation == .faceDown || deviceOrientation == .faceUp
+      || deviceOrientation == .unknown
+    {
+      deviceOrientation = currentUIOrientation()
+    }
+    switch deviceOrientation {
+    case .portrait:
+      return devicePosition == .front ? .leftMirrored : .right
+    case .landscapeLeft:
+      return devicePosition == .front ? .downMirrored : .up
+    case .portraitUpsideDown:
+      return devicePosition == .front ? .rightMirrored : .left
+    case .landscapeRight:
+      return devicePosition == .front ? .upMirrored : .down
+    case .faceDown, .faceUp, .unknown:
+      return .up
+    }
+  }
+
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?)
     -> Any?
   {
-    // Convert to VisionImage
-    let visionImage = VisionImage(buffer: frame.buffer)
-    visionImage.orientation = frame.orientation  // fully qualified
-
-    // Create a text recognizer
-    let options = TextRecognizerOptions()
-    let textRecognizer = TextRecognizer.textRecognizer(options: options)
-
-    var recognizedTexts: [String] = []
-
-    let semaphore = DispatchSemaphore(value: 0)
-
-    textRecognizer.process(visionImage) { result, error in
-      defer { semaphore.signal() }
-
-      guard error == nil, let result = result else {
-        print("MLKit error: \(error?.localizedDescription ?? "unknown")")
-        return
-      }
-
-      for block in result.blocks {
-        for line in block.lines {
-          recognizedTexts.append(line.text)
-        }
-      }
+    guard CMSampleBufferGetImageBuffer(frame.buffer) != nil else {
+      print("Failed to get image buffer from sample buffer.")
+      return nil
     }
 
-    // Wait synchronously (VisionCamera frame processor is synchronous)
-    semaphore.wait()
+    let visionImage = VisionImage(buffer: frame.buffer)
+
+    let latinOptions = TextRecognizerOptions()
+    let orientation = imageOrientation(
+      fromDevicePosition: .back
+    )
+    visionImage.orientation = orientation
+
+    var result: Text
+    do {
+      result = try TextRecognizer.textRecognizer(options: latinOptions)
+        .results(in: visionImage)
+    } catch let error {
+      print("Failed to recognize text with error: \(error.localizedDescription).")
+      return nil
+    }
 
     return [
-      "count": recognizedTexts.count,
-      "recognized": [
-        "texts": recognizedTexts,
-        "count": recognizedTexts.count,
-      ],
+      "result": [
+        "text": result.text,
+        "blocks": getBlockArray(result.blocks),
+      ]
     ]
-  }
-}
-
-// MARK: - Orientation helper
-extension Frame {
-  var cameraOrientation: UIImage.Orientation {
-    // If you need to handle front/back mirroring:
-    if self.isMirrored {
-      switch self.orientation {
-      case .up: return .upMirrored
-      case .down: return .downMirrored
-      case .left: return .leftMirrored
-      case .right: return .rightMirrored
-      @unknown default: return .up
-      }
-    } else {
-      return self.orientation
-    }
   }
 }

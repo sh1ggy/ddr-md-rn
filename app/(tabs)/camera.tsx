@@ -11,13 +11,13 @@ import {
   Camera,
   useCameraDevice,
   useCameraPermission,
-  useFrameProcessor,
+  useFrameProcessor
 } from "react-native-vision-camera";
 import { Worklets } from "react-native-worklets-core";
 
 export default function CameraScreen() {
   const [ocrState, setOcrState] = useState<string[]>([]);
-
+  
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
   const camera = useRef<Camera>(null);
@@ -29,11 +29,13 @@ export default function CameraScreen() {
   const frameProcessor = useFrameProcessor((frame) => {
     "worklet";
     const ocrResult = ocr(frame);
-    console.log(ocrResult.recognized.texts);
-    updateOcrText(ocrResult.recognized.texts);
+    console.log(ocrResult.result.text);
+    
+    
   }, []);
 
   useEffect(() => {
+    if (hasPermission === false) return;
     requestPermission();
   }, [])
 
@@ -96,7 +98,6 @@ export default function CameraScreen() {
         isActive={true}
         enableFpsGraph
         enableZoomGesture
-        photoQualityBalance="speed"
         style={styles.container}
       />
     </View>
