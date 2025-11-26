@@ -1,5 +1,5 @@
 import { Text, View } from "@/components/Themed";
-import { ocr } from "@/frame-processors/ocr";
+import { ocr, TextBlock } from "@/frame-processors/ocr";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -16,22 +16,20 @@ import {
 import { Worklets } from "react-native-worklets-core";
 
 export default function CameraScreen() {
-  const [ocrState, setOcrState] = useState<string[]>([]);
+  const [ocrState, setOcrState] = useState<TextBlock[]>([]);
   
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice("back");
   const camera = useRef<Camera>(null);
 
-  const updateOcrText = Worklets.createRunOnJS((text: string[]) => {
+  const updateOcrText = Worklets.createRunOnJS((text: TextBlock[]) => {
     setOcrState(text);
   });
 
   const frameProcessor = useFrameProcessor((frame) => {
     "worklet";
     const ocrResult = ocr(frame);
-    console.log(ocrResult.result.text);
-    
-    
+    updateOcrText(ocrResult.result.blocks);
   }, []);
 
   useEffect(() => {
@@ -79,9 +77,9 @@ export default function CameraScreen() {
           <Text style={{ textAlign: "left" }}>
             {ocrState && (
               <Text style={{ color: "white" }}>
-                {ocrState.map((block: string, i: number) => (
+                {ocrState.map((block: TextBlock, i: number) => (
                   <Text key={`${i}:${block}`} style={{ color: "white" }}>
-                    {block}
+                    {block.text}
                     {"\n"}
                   </Text>
                 ))}
