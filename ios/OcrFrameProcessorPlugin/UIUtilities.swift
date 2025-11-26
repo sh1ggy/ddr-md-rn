@@ -19,7 +19,6 @@ import MLKit
 
 /// Defines UI-related utilitiy methods for vision detection.
 public class UIUtilities {
-
   // MARK: - Public
   public static func imageOrientation(
     fromDevicePosition devicePosition: AVCaptureDevice.Position = .back

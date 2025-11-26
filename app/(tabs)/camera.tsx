@@ -35,7 +35,7 @@ export default function CameraScreen() {
   }, []);
 
   useEffect(() => {
-    if (hasPermission === false) return;
+    if (hasPermission === true) return;
     requestPermission();
   }, [])
 
